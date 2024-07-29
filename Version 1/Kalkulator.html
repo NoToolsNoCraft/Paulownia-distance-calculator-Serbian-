@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator za paulovnije</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            background-color: rgb(165, 255, 165);
+            border: 1px solid rgb(102, 102, 102); /* Thin black border */
+            padding: 10px;
+        }
+        .form-group {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .form-group input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .form-group .radio-group {
+            display: flex;
+            flex-direction: column;
+        }
+        #calculate {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 200px;
+            margin-top: 20px;
+        }
+        #result {
+    margin-top: 25px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 22px; /* Adjust the font size as needed */
+    background-color: yellow; /* Add a yellow background */
+}
+        #specialcomment{
+            width: 100%;
+            max-width: 600px;
+            height: 200px;
+            margin: 20px 0;
+            border: 2px solid #000;
+            position: relative;
+            overflow: hidden;
+        }
+        .tree {
+            width: 20px;
+            height: 20px;
+            background-color: green;
+            border-radius: 50%;
+            position: absolute;
+        }
+        #suggestedValues {
+    text-align: center;
+    background-color: lightblue;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 0px;
+    border: 2px solid #000;
+}
+    #AboutApp {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px 0;
+            border-top: 8px solid #bbb;
+            border-radius: 5px;
+        }
+    #blog {
+            width: 100%;
+            max-width: 400px;
+            margin: 10px 0;
+            border-top: 8px solid #bbb;
+            border-radius: 5px;
+        }
+    
+    </style>
+</head>
+<body>
+    <h1>Kalkulator za paulovnije</h1>
+    <div id="AboutApp">
+        <h2 style="text-align: center;">O aplikaciji</h2>
+        <p style="text-align: justify;">Dobrodošli u naš kalkulator optimalne sadnje paulovnija! Ovaj alat vam pomaže da odredite optimalni razmak za sadnju paulovnija, kao i optimalan broj sadnica na vašem zemljištu, na osnovu dimenzija vašeg zemljišta i odabranog stila sadnje. Bez obzira da li želite da maksimalno iskoristite prostor ili sledite određene smernice za sadnju, naša aplikacija pruža korisne uvide i preporuke. Pratite ažuriranja i dodatne funkcije!</p>
+        </div>
+    <div class="form-group">
+        <label for="treeType">Odaberite vrstu paulovnije</label>
+        <select id="treeType" onchange="updateSuggestedValues()">
+            <option>Izaberi paulovniju</option>
+        </select>
+    </div>
+    <div id="suggestedValues" class="form-group"></div>
+    <div class="form-group">
+        <label>Odaberite stil (sistem) sadnje
+            <a href="#planting-system" style="font-size: 0.9em; margin-left: 10px;">(pročitaj više)</a>
+        </label>
+        <div class="radio-group">
+            <label><input type="radio" name="plantingStyle" value="Square" checked> Kvadratni</label>
+            <label><input type="radio" name="plantingStyle" value="Rectangular"> Pravougaoni</label>
+            <label><input type="radio" name="plantingStyle" value="Hexagonal"> Dijagonalni/Šestougaoni</label>
+            <label><input type="radio" name="plantingStyle" value="Quincunx"> Quincunx</label>
+            <label><input type="radio" name="plantingStyle" value="Contour"> Konturni</label>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label for="unit">Odaberi mernu jedinicu</label>
+        <select id="unit" onchange="updateLandSize()">
+            <option value="metara">Metar</option>
+            
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="distanceX">Unesite željeni razmak između drveća (X)</label>
+        <input type="number" id="distanceX">
+    </div>
+    <div class="form-group">
+        <label for="distanceY">Unesite željeni razmak između drveća (Y)</label>
+        <input type="number" id="distanceY">
+    </div>
+    <div class="form-group">
+        <label for="landWidth">Unesite širinu zemljišta</label>
+        <input type="number" id="landWidth" oninput="updateLandSize()">
+    </div>
+    <div class="form-group">
+        <label for="landHeight">Unesite dužinu zemljišta</label>
+        <input type="number" id="landHeight" oninput="updateLandSize()">
+    </div>
+    <div id="landSize" class="form-group"></div>
+    <button id="calculate" onclick="calculateTrees()">Izračunaj</button>
+    <div id="result"></div>
+    <div id="specialcomment"></div>
+    <!-- New blog component -->
+    <div id="blog">
+    <h2 id="planting-system" style="text-align: center;">Sistemi sadnje</h2>
+    <div class="guide">
+        <p class="guide-title"></p>
+        <p style="text-align: justify;">Generalno, preporučuje se 5 sistema sadnje za drveće.</p>
+
+        <p class="guide-subtitle">1. Kvadratni sistem</p>
+        <p style="text-align: justify;">Ovaj sistem je najjednostavniji i široko prihvaćen. Parcela je podeljena na kvadrate, a drveće je zasađeno na uglovima.</p>
+        <p class="guide-subtitle">2. Pravougaoni sistem</p>
+        <p style="text-align: justify;">Slično kvadratnom sistemu, ali sa pravougaonicima, omogućavajući više biljaka u nizu. Ima iste prednosti, ali može da primi više stabala na parceli.</p>
+
+        <p class="guide-subtitle">3. Dijagonalni (šestougaoni) sistem</p>
+        <p style="text-align: justify;">Drveće je zasađeno na uglovima jednakostraničnih trouglova, formirajući šestouglove. Odgovara plodnim zemljama sa dovoljno vode. Iako može da posadi 15% više stabala, manje je usvojen zbog poteškoća u rasporedu i uzgoju.</p>
+
+        <p class="guide-subtitle">4. Quincunx sistem</p>
+        <p style="text-align: justify;">Slično kvadratnom sistemu, sa petim stablom zasađenim u centru svakog kvadrata. Ova stabla "punila" se uklanjaju kako glavna stabla sazrevaju, čime se rano obezbeđuju dodatni prihodi.</p>
+
+        <p class="guide-subtitle">5. Konturni sistem</p>
+        <p style="text-align: justify;">Pogodno za brdovita zemljišta sa visokim nagibima kako bi se minimizirala erozija i sačuvala vlaga u zemljištu. Konturne linije su dizajnirane da uspore protok vode, osiguravajući da ona prodre u tlo bez izazivanja erozije.</p>
+    
+</div>
+
+    <script>
+        const treeData = [
+            {"tree_type": "Paulovnija Shantong Hibrid F1", "firewood": "2x2", "industrial": "4x4"},
+            
+        ];
+
+        function populateTreeTypes() {
+            const treeTypeSelect = document.getElementById('treeType');
+            treeData.forEach(tree => {
+                const option = document.createElement('option');
+                option.value = tree.tree_type;
+                option.text = tree.tree_type;
+                treeTypeSelect.appendChild(option);
+            });
+        }
+
+        function updateSuggestedValues() {
+            const treeType = document.getElementById('treeType').value;
+            const suggestedValuesDiv = document.getElementById('suggestedValues');
+            suggestedValuesDiv.innerHTML = '';
+
+            const tree = treeData.find(tree => tree.tree_type === treeType);
+            if (tree) {
+                const firewood = tree.firewood || 'N/A';
+                const fruit = tree.fruit || 'N/A';
+                const industrial = tree.industrial || 'N/A';
+
+                suggestedValuesDiv.innerHTML = `
+                    <p><strong>Preporučeni razmak između sadnica:</strong></p>
+                    <p>=> Proizvodnja drva za loženje: ${firewood}m</p>
+                    
+                    <p>=> Proizvodnja drva za građevinski materijal: ${industrial}m</p>
+                `;
+            }
+        }
+
+        function updateLandSize() {
+            const landWidth = parseFloat(document.getElementById('landWidth').value);
+            const landHeight = parseFloat(document.getElementById('landHeight').value);
+            const unit = document.getElementById('unit').value;
+            const landSizeDiv = document.getElementById('landSize');
+
+            if (!isNaN(landWidth) && !isNaN(landHeight)) {
+                let landSizeText = `Veličina zemljišta: ${landWidth} x ${landHeight} ${unit}`;
+                let area = landWidth * landHeight;
+
+                if (unit === 'metara') {
+                    landSizeText += ` = ${area.toFixed(2)} m²`;
+                    if (area >= 100) {
+                        landSizeText += ` = ${(area / 10000).toFixed(2)} hektara`;
+                    }
+                } else {
+                    landSizeText += ` = ${area.toFixed(2)} m²`;
+                }
+
+                landSizeDiv.innerHTML = landSizeText;
+            } else {
+                landSizeDiv.innerHTML = '';
+            }
+        }
+
+        function calculateTrees() {
+    const distanceX = parseFloat(document.getElementById('distanceX').value);
+    const distanceY = parseFloat(document.getElementById('distanceY').value);
+    const landWidth = parseFloat(document.getElementById('landWidth').value);
+    const landHeight = parseFloat(document.getElementById('landHeight').value);
+    const plantingStyle = document.querySelector('input[name="plantingStyle"]:checked').value;
+
+    if (!distanceX || !distanceY || !landWidth || !landHeight) {
+        document.getElementById('result').innerText = 'Molim vas popunite sva polja!';
+        return;
+    }
+
+    let totalTrees = 0;
+    const numTreesX = Math.floor(landWidth / distanceX) + 1;
+    const numTreesY = Math.floor(landHeight / distanceY) + 1;
+
+    switch (plantingStyle) {
+        case 'Square':
+            if (distanceX !== distanceY) {
+                document.getElementById('result').innerText = 'U kvadratnom sistemu, razmaci između sadnica moraju biti jednaki (vrednost X i Y (dužine i širine) mora biti isti).';
+                return;
+            }
+            totalTrees = numTreesX * numTreesY;
+            break;
+
+        case 'Rectangular':
+        if (distanceX === distanceY) {
+                document.getElementById('result').innerText = 'U pravougaonom sistemu, razmaci između sadnica moraju biti različiti (vrednost X i Y (dužine i širine) se mora razlikovati).';
+                return;
+            }
+            totalTrees = numTreesX * numTreesY;
+            break;
+
+        case 'Diagonal':
+        case 'Hexagonal':
+            if (distanceX !== distanceY) {
+                document.getElementById('result').innerText = 'U šestougaonom sistemu, razmaci između sadnica moraju biti jednaki (vrednost X i Y mora biti isti).';
+                return;
+            }
+            totalTrees = Math.floor((numTreesX * numTreesY) * 1.15);
+            break;
+
+        case 'Quincunx':
+            if (distanceX !== distanceY) {
+                document.getElementById('result').innerText = 'In Quincunx style, both distances must be the same.';
+                return;
+            }
+            // Calculate trees in the square grid
+            const treesInSquares = numTreesX * numTreesY;
+            // Calculate additional trees in the center of each square
+            const additionalTrees = (numTreesX - 1) * (numTreesY - 1);
+            totalTrees = treesInSquares + additionalTrees;
+            break;
+
+        case 'Contour':
+            totalTrees = numTreesX * numTreesY; // Assuming the basic calculation for Contour style
+            break;
+
+        default:
+            document.getElementById('result').innerText = 'Invalid planting style selected.';
+            return;
+    }
+
+    document.getElementById('result').innerText = `Ukupan broj drva koja se mogu posaditi na ovom zemljištu: ${totalTrees}`;
+    checkSpecialComment();
+}
+
+function checkSpecialComment() {
+    const distanceX = parseFloat(document.getElementById('distanceX').value);
+    const distanceY = parseFloat(document.getElementById('distanceY').value);
+    const landWidth = parseFloat(document.getElementById('landWidth').value);
+    const landHeight = parseFloat(document.getElementById('landHeight').value);
+    const plantingStyle = document.querySelector('input[name="plantingStyle"]:checked').value;
+
+    const specialCommentDiv = document.getElementById('specialcomment');
+    specialCommentDiv.innerHTML = ''; // Clear previous comments
+
+    if (plantingStyle === 'Hexagonal' && distanceX === distanceY && landWidth === landHeight && distanceX === landWidth) {
+        specialCommentDiv.innerHTML = 'Sa šestougaonim (dijagonalnim) stilom sadnje u ovom specifičnom slučaju gde su sve udaljenosti i dimenzije zemljišta jednake, potrebna su posebna razmatranja. Tehnički, četiri stabla bi se mogla posaditi, ali ovo pretpostavlja da je zemljište u obliku dijamanta (ili romba). Pošto je vaša zemlja verovatno kvadratnog oblika, samo 3 stabla mogu stati pomoću ove metode.';
+    }
+}
+
+
+
+        window.onload = function() {
+            populateTreeTypes();
+        }
+    </script>
+</body>
+</html>
